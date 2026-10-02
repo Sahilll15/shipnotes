@@ -1,8 +1,14 @@
 # ShipNotes
 
-Paste a public GitHub repo, pick two tags, and get release notes people can read. ShipNotes groups the changes into breaking changes, features, improvements, fixes, docs and internal work, writes each one as a single line, and links every line back to the PR or commit it came from.
+Readable release notes from a public GitHub repo and two tags, with every line linked to its PR or commit.
 
-It is for maintainers who want a first draft of a release body, and for users who want to know what changed between two versions without reading 40 commit messages.
+**Live demo:** https://shipnotes-mu.vercel.app
+
+![ShipNotes demo: running the sindresorhus/ky v2.0.2 to v2.1.0 sample, scrolling grouped notes for features, improvements, fixes and docs with PR links, the citation check, switching to the developer tone, and opening the draft release body](docs/demo.gif)
+
+## Why it exists
+
+Maintainers need a first draft of a release body, and users want to know what changed between two versions without reading 40 commit messages. ShipNotes reads the commits and merged PRs between two refs, groups them into breaking changes, features, improvements, fixes, docs and internal work, and writes each change as one line. Every line links back to its source, so you can check each one.
 
 ## How it works
 
@@ -22,6 +28,22 @@ It is for maintainers who want a first draft of a release body, and for users wh
 - Low reasoning effort, two SDK retries, a 90 second timeout.
 
 A run on the three samples used 1.3k to 5.9k input tokens and 0.7k to 1.7k output tokens on `gpt-5.4-mini`, about $0.005 to $0.012 each.
+
+## Screenshots
+
+![ShipNotes home page with the Changelog heading, a form for a public GitHub repo with from and to refs, and three sample ranges](docs/home.webp)
+
+![ShipNotes notes for sindresorhus/ky v2.0.2 to v2.1.0: "Retry and request fixes", 13 commits and 7 PRs from 4 contributors, grouped into 2 features, 2 improvements, 5 fixes and 1 docs change, each with a PR number or commit SHA](docs/result.webp)
+
+A 17 second recording of the ky sample is in [docs/demo.mp4](docs/demo.mp4). The notes were already cached from an earlier run, so they appear at once in the video. The first uncached run took 15.9 seconds and used 1,263 input and 745 output tokens, about $0.0043.
+
+## Stack
+
+- Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS 4
+- OpenAI Node SDK: Responses API with Structured Outputs (`gpt-5.4-mini`)
+- GitHub REST API (compare, search, pulls)
+- zod for request and output schemas
+- Deployed on Vercel
 
 ## Run it
 
@@ -49,3 +71,12 @@ npm run lint && npm run build
 ## Tests
 
 `npm test` covers GitHub response shaping (commits, search items, PR template cleanup, merge-commit attribution, compare page math, semver tag sorting), grouping and citation checks (invented refs, empty bullets, duplicates, fallback bullets, prompt budget), markdown output in both tones, HTML rendering with escaping, and the rate limiter.
+
+## Related
+
+Other small apps built on the OpenAI API:
+
+- [Interview Coach](https://github.com/Sahilll15/interview-coach): a spoken mock interview with a report that quotes your answers. Live at https://interview-coach-seven-rose.vercel.app
+- [Minutes](https://github.com/Sahilll15/minutes): meeting minutes from diarized audio where every item links back to the transcript. Live at https://minutes-sand.vercel.app
+- [SplitSnap](https://github.com/Sahilll15/splitsnap): split a restaurant bill from a receipt photo, exact to the cent. Live at https://splitsnap-sandy.vercel.app
+- [AskCSV](https://github.com/Sahilll15/askcsv): ask plain English questions about a CSV, answered with checked SQL in the browser
