@@ -1,0 +1,51 @@
+# ShipNotes
+
+Paste a public GitHub repo, pick two tags, and get release notes people can read. ShipNotes groups the changes into breaking changes, features, improvements, fixes, docs and internal work, writes each one as a single line, and links every line back to the PR or commit it came from.
+
+It is for maintainers who want a first draft of a release body, and for users who want to know what changed between two versions without reading 40 commit messages.
+
+## How it works
+
+1. **GitHub fetch.** The server calls the GitHub REST compare endpoint for `base...head`, then finds the merged PRs behind those commits. PR numbers come from squash subjects (`fix: x (#123)`) and merge commits. For merge commits, every off-mainline commit behind the second parent is credited to that PR. PR titles, bodies, labels and authors come from one search query, with single-PR lookups as a fallback. With `GITHUB_TOKEN` set, commits with no PR number are also checked against `commits/{sha}/pulls`.
+2. **One Structured Outputs call.** The OpenAI Responses API (`responses.parse` with `zodTextFormat`) returns a typed object: a headline, a summary, and bullets. Each bullet has a category, a line for users, a line for developers and the IDs of its sources. Both tones come from the same call, so the tone switch costs nothing.
+3. **Citation check in code.** Every ref the model returns is resolved against the fetched set. Made-up PR numbers and SHAs are dropped, a bullet left with no valid source is removed, and repeated citations are reported. Any change the model skipped is added back from its own title, using a conventional-commit and label heuristic to pick the category. The page shows the result of these checks under the notes.
+4. **Export.** Markdown in GitHub's release format (`- line by @user in <PR url>`, a contributors line, a full changelog link), copy, a `.md` download, and a draft preview that renders that markdown the way a release page shows it.
+
+### Limits and cost controls
+
+- The range is capped at the newest 150 commits (`MAX_COMMITS`). The cap picks the right compare pages, so a large range costs no extra requests.
+- GitHub responses are cached in memory for 15 minutes, shaped first so the cache holds no diff payloads. Rate-limit headers are tracked per resource. When the quota is used up, ShipNotes stops calling GitHub and says when it resets.
+- Finished notes are cached for an hour. A cached result is served without counting against the rate limit, so the sample buttons are free after the first run.
+- `/api/notes` allows 4 uncached runs per IP per hour and `/api/refs` allows 20. Input is validated before a request is counted. Bodies over 2KB get a 413.
+- The client IP comes from `x-real-ip`, then the last `x-forwarded-for` hop, because the leftmost hop is set by the client.
+- The prompt is capped near 48k characters. PR bodies are stripped of template noise and shortened until the prompt fits. The prompt marks PR text as untrusted data.
+- Low reasoning effort, two SDK retries, a 90 second timeout.
+
+A run on the three samples used 1.3k to 5.9k input tokens and 0.7k to 1.7k output tokens on `gpt-5.4-mini`, about $0.005 to $0.012 each.
+
+## Run it
+
+```bash
+cp .env.example .env.local   # add OPENAI_API_KEY
+npm install
+npm run dev                  # http://localhost:3000
+npm test                     # node --test, no build step
+npm run lint && npm run build
+```
+
+## Config
+
+| Variable | Default | What it does |
+| --- | --- | --- |
+| `OPENAI_API_KEY` | none | Required. Server only. |
+| `OPENAI_MODEL` | `gpt-5.4-mini` | Model for the notes. |
+| `GITHUB_TOKEN` | none | Optional. Raises GitHub's limit from 60 to 5000 requests per hour and turns on PR lookups for unlabeled commits. |
+| `RATE_LIMIT_NOTES` | `4` | Uncached note runs per IP per window. |
+| `RATE_LIMIT_REFS` | `20` | Tag lookups per IP per window. |
+| `RATE_LIMIT_WINDOW_MS` | `3600000` | Rate limit window. |
+| `MAX_COMMITS` | `150` | Newest commits read from a range. |
+| `PRICE_INPUT_PER_M`, `PRICE_OUTPUT_PER_M` | `0.75`, `4.5` | USD per million tokens, for the cost shown on the page. |
+
+## Tests
+
+`npm test` covers GitHub response shaping (commits, search items, PR template cleanup, merge-commit attribution, compare page math, semver tag sorting), grouping and citation checks (invented refs, empty bullets, duplicates, fallback bullets, prompt budget), markdown output in both tones, HTML rendering with escaping, and the rate limiter.
