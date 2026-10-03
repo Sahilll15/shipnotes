@@ -1,0 +1,1 @@
+ShipNotes release notes grouped into features, improvements and fixes, each line linked to a pull request

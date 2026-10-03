@@ -231,7 +231,10 @@ export function App() {
         <div className="mx-auto max-w-[760px] sm:pl-[136px]">
           <section className="pt-8 sm:pt-14">
             <div className="flex items-end justify-between gap-4">
-              <h1 className="font-serif text-[46px] italic leading-[0.95] tracking-[-0.01em] sm:text-[54px]">Changelog</h1>
+              <h1 className="font-serif text-[46px] italic leading-[0.95] tracking-[-0.01em] sm:text-[54px]">
+                <span className="sr-only">ShipNotes, release notes from your GitHub commits: </span>
+                Changelog
+              </h1>
               <div className="flex items-center gap-0.5 pb-1">
                 <IconButton label="Copy markdown" onClick={copy} disabled={!data}>
                   <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.4" aria-hidden>
