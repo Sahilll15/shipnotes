@@ -29,6 +29,21 @@ Maintainers need a first draft of a release body, and users want to know what ch
 
 A run on the three samples used 1.3k to 5.9k input tokens and 0.7k to 1.7k output tokens on `gpt-5.4-mini`, about $0.005 to $0.012 each.
 
+## Architecture
+
+![ShipNotes architecture: the browser sends a public repo and two refs to Next.js routes on Vercel, which count requests in Upstash Redis, read commits and PRs from the GitHub API, and write cited notes with one OpenAI call](docs/architecture.svg)
+
+1. The browser asks `GET /api/refs` for the repo's tags.
+2. The route counts the request in Upstash Redis.
+3. It reads the tags from the GitHub REST API. GitHub responses are cached in memory for 15 minutes.
+4. The browser posts the repo and two refs to `POST /api/notes`. A range generated in the last hour comes back from cache without counting.
+5. Otherwise the route counts the run in Redis before any paid call.
+6. It fetches the compare range, the merged PRs and their details from GitHub.
+7. One OpenAI Structured Outputs call groups the changes and writes both tones.
+8. Every cited PR or commit is checked against the fetched set in code, and progress and the result stream back as NDJSON.
+
+Why it is built this way: the OpenAI key and the optional GitHub token stay on the server. Limits are counted in Redis before the paid call, so every instance enforces the same budget. A line whose source cannot be found in the fetched commits and PRs is dropped in code, not trusted.
+
 ## Screenshots
 
 ![ShipNotes home page with the Changelog heading, a form for a public GitHub repo with from and to refs, and three sample ranges](docs/home.webp)

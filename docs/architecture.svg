@@ -1,0 +1,90 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 640" width="1200" height="640" font-family="Inter, Segoe UI, Roboto, Helvetica, Arial, sans-serif" role="img" aria-labelledby="t d"><title id="t">ShipNotes architecture</title><desc id="d">The browser sends a public repo and two refs to Next.js routes on Vercel, which count requests in Upstash Redis, read commits and PRs from the GitHub API, and write cited notes with one OpenAI call.</desc><defs><marker id="a-main" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#0969da"/></marker><marker id="a-sec" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0 L10 5 L0 10 z" fill="#8c959f"/></marker></defs><rect x="0.5" y="0.5" width="1199" height="639" rx="16" fill="#ffffff" stroke="#e3e6ea"/><rect x="24" y="24" width="252" height="552" rx="14" fill="#eef4ff"/>
+<text x="40" y="48" font-size="12" fill="#57606a" font-weight="600" letter-spacing="0.06em">CLIENT</text>
+<rect x="300" y="24" width="452" height="552" rx="14" fill="#f6f8fa"/>
+<text x="316" y="48" font-size="12" fill="#57606a" font-weight="600" letter-spacing="0.06em">VERCEL</text>
+<rect x="776" y="24" width="400" height="344" rx="14" fill="#f5f0ff"/>
+<text x="792" y="48" font-size="12" fill="#57606a" font-weight="600" letter-spacing="0.06em">EXTERNAL SERVICES</text>
+<rect x="776" y="384" width="400" height="192" rx="14" fill="#edf8f1"/>
+<text x="792" y="408" font-size="12" fill="#57606a" font-weight="600" letter-spacing="0.06em">DATA</text>
+<path d="M32 606 L68 606" stroke="#0969da" stroke-width="2" marker-end="url(#a-main)"/>
+<text x="78" y="610" font-size="12" fill="#57606a" text-anchor="start">Request path</text>
+<path d="M192 606 L228 606" stroke="#8c959f" stroke-width="1.5" stroke-dasharray="5 4" marker-end="url(#a-sec)"/>
+<text x="238" y="610" font-size="12" fill="#57606a" text-anchor="start">Secondary or optional path</text>
+<circle cx="430" cy="606" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="430" y="610.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<text x="448" y="610" font-size="12" fill="#57606a" text-anchor="start">Step, see the list below</text>
+<rect x="118" y="68" width="64" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<rect x="128" y="84" width="44" height="32" rx="4" fill="#ffffff" stroke="#57606a" stroke-width="1.6"/>
+<path d="M128 93 L172 93" stroke="#57606a" stroke-width="1.6"/>
+<circle cx="134" cy="88.5" r="1.6" fill="#cf222e"/>
+<circle cx="139" cy="88.5" r="1.6" fill="#bf8700"/>
+<circle cx="144" cy="88.5" r="1.6" fill="#1a7f37"/>
+<path d="M136 101 L158 101 M136 107 L164 107" stroke="#afb8c1" stroke-width="2" stroke-linecap="round"/>
+<text x="150" y="152" font-size="14" fill="#1f2328" text-anchor="middle">Browser</text>
+<text x="150" y="169" font-size="12" fill="#57606a" text-anchor="middle">React app</text>
+<rect x="40" y="186" width="172" height="102" rx="10" fill="#ffffff" stroke="#d0d7de"/>
+<text x="52" y="208" font-size="12" fill="#1f2328" text-anchor="start" font-weight="600">In the browser</text>
+<text x="52" y="227" font-size="12" fill="#57606a" text-anchor="start">Public repo and two tags</text>
+<text x="52" y="244" font-size="12" fill="#57606a" text-anchor="start">Progress while it works</text>
+<text x="52" y="261" font-size="12" fill="#57606a" text-anchor="start">Notes in two tones</text>
+<text x="52" y="278" font-size="12" fill="#57606a" text-anchor="start">Markdown export</text>
+<rect x="338" y="68" width="64" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<polygon points="370,83 390,115 350,115" fill="#000000"/>
+<text x="370" y="152" font-size="14" fill="#1f2328" text-anchor="middle">Next.js</text>
+<text x="370" y="169" font-size="12" fill="#57606a" text-anchor="middle">route handlers</text>
+<rect x="440" y="190" width="250" height="40" rx="9" fill="#ffffff" stroke="#d0d7de"/>
+<rect x="449" y="199" width="22" height="22" rx="6" fill="#ddf4ff"/>
+<text x="460" y="215" font-size="14" fill="#0969da" text-anchor="middle" font-style="italic" font-weight="700">f</text>
+<text x="480" y="215" font-size="13" fill="#1f2328" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">GET /api/refs</text>
+<text x="480" y="245" font-size="12" fill="#57606a" text-anchor="start">tags, newest first</text>
+<rect x="440" y="350" width="250" height="40" rx="9" fill="#ffffff" stroke="#d0d7de"/>
+<rect x="449" y="359" width="22" height="22" rx="6" fill="#ddf4ff"/>
+<text x="460" y="375" font-size="14" fill="#0969da" text-anchor="middle" font-style="italic" font-weight="700">f</text>
+<text x="480" y="375" font-size="13" fill="#1f2328" text-anchor="start" font-family="ui-monospace, SFMono-Regular, Menlo, Consolas, monospace">POST /api/notes</text>
+<text x="480" y="405" font-size="12" fill="#57606a" text-anchor="start">1 h result cache, citation check</text>
+<text x="452" y="266" font-size="12" fill="#57606a" text-anchor="start">GitHub responses cached</text>
+<text x="452" y="283" font-size="12" fill="#57606a" text-anchor="start">for 15 min in memory</text>
+<rect x="944" y="72" width="64" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<circle cx="976" cy="104" r="19" fill="#1f2328"/>
+<path d="M970 95 L970 113 M970 106 Q982 106 982 98" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round"/>
+<circle cx="970" cy="95" r="3" fill="#1f2328" stroke="#ffffff" stroke-width="1.8"/>
+<circle cx="970" cy="113" r="3" fill="#1f2328" stroke="#ffffff" stroke-width="1.8"/>
+<circle cx="982" cy="97" r="3" fill="#1f2328" stroke="#ffffff" stroke-width="1.8"/>
+<text x="976" y="156" font-size="14" fill="#1f2328" text-anchor="middle">GitHub REST API</text>
+<text x="976" y="173" font-size="12" fill="#57606a" text-anchor="middle">tags, compare, search, pulls</text>
+<rect x="944" y="230" width="64" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<polygon points="976,242 993.32,252.0 993.32,272.0 976,282 958.68,272.0 958.68,252.0" fill="#f5f0ff" stroke="#8250df" stroke-width="1.6"/>
+<path d="M976 252 Q978 260 986 262 Q978 264 976 272 Q974 264 966 262 Q974 260 976 252 z" fill="#8250df"/>
+<text x="976" y="314" font-size="14" fill="#1f2328" text-anchor="middle">OpenAI</text>
+<text x="976" y="331" font-size="12" fill="#57606a" text-anchor="middle">gpt-5.4-mini</text>
+<text x="976" y="347" font-size="12" fill="#57606a" text-anchor="middle">Structured Outputs</text>
+<rect x="944" y="424" width="64" height="64" rx="12" fill="#ffffff" stroke="#d0d7de"/>
+<path d="M956 441 L956 469 A20 6 0 0 0 996 469 L996 441" fill="#d1f0dc" stroke="#1a7f37" stroke-width="1.6"/>
+<ellipse cx="976" cy="441" rx="20" ry="6" fill="#eafaf0" stroke="#1a7f37" stroke-width="1.6"/>
+<path d="M956 451 A20 6 0 0 0 996 451 M956 460 A20 6 0 0 0 996 460" fill="none" stroke="#1a7f37" stroke-width="1.2"/>
+<text x="976" y="508" font-size="14" fill="#1f2328" text-anchor="middle">Upstash Redis</text>
+<text x="976" y="525" font-size="12" fill="#57606a" text-anchor="middle">rate limits</text>
+<path d="M182 92 L240 92 L240 204 L436 204" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="330" cy="204" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="330" y="208.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">1</text>
+<path d="M690 222 L712 222 L712 440 L940 440" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="712" cy="300" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="712" y="304.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">2</text>
+<path d="M690 200 L760 200 L760 96 L940 96" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="760" cy="150" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="760" y="154.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">3</text>
+<path d="M182 112 L226 112 L226 362 L436 362" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="330" cy="362" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="330" y="366.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">4</text>
+<path d="M690 384 L700 384 L700 456 L940 456" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="820" cy="456" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="820" y="460.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">5</text>
+<path d="M690 358 L790 358 L790 114 L940 114" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="790" cy="240" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="790" y="244.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">6</text>
+<path d="M690 370 L850 370 L850 270 L940 270" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="850" cy="320" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="850" y="324.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">7</text>
+<path d="M436 382 L126 382 L126 292" fill="none" stroke="#0969da" stroke-width="2" stroke-linejoin="round" marker-end="url(#a-main)"/>
+<circle cx="170" cy="382" r="11" fill="#0969da" stroke="#ffffff" stroke-width="2"/>
+<text x="170" y="386.5" font-size="12" font-weight="700" fill="#ffffff" text-anchor="middle">8</text></svg>
