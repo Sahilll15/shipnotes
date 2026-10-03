@@ -212,9 +212,9 @@ export function App() {
               GitHub {quota.core.remaining}/{quota.core.limit}
             </span>
           )}
-          <a href="#how" className="text-[13px] text-ink-soft transition hover:text-ink">
+          <Link href="/how-it-works" className="text-[13px] text-ink-soft transition hover:text-ink">
             How it works
-          </a>
+          </Link>
           <button
             onClick={() => {
               repoInput.current?.focus();
@@ -231,9 +231,11 @@ export function App() {
         <div className="mx-auto max-w-[760px] sm:pl-[136px]">
           <section className="pt-8 sm:pt-14">
             <div className="flex items-end justify-between gap-4">
-              <h1 className="font-serif text-[46px] italic leading-[0.95] tracking-[-0.01em] sm:text-[54px]">
-                <span className="sr-only">ShipNotes, release notes from your GitHub commits: </span>
-                Changelog
+              <h1>
+                <span className="block font-mono text-[11.5px] uppercase tracking-[0.08em] text-ink-soft">ShipNotes changelog</span>
+                <span className="mt-2 block font-serif text-[38px] italic leading-[1] tracking-[-0.01em] sm:text-[48px]">
+                  Release notes from your GitHub commits
+                </span>
               </h1>
               <div className="flex items-center gap-0.5 pb-1">
                 <IconButton label="Copy markdown" onClick={copy} disabled={!data}>
@@ -256,7 +258,10 @@ export function App() {
               </div>
             </div>
             <p className="mt-3 text-[14px] text-ink-soft">
-              Release notes people can read, written from the commits and pull requests between two refs.
+              Release notes people can read, written from the commits and pull requests between two refs.{' '}
+              <Link href="/how-it-works" className="text-ink underline underline-offset-4 decoration-line-strong transition hover:decoration-ink">
+                How it works
+              </Link>
             </p>
 
             <form
@@ -387,7 +392,10 @@ export function App() {
             ))}
           </div>
           <p className="mt-10 text-[12px] text-ink-faint">
-            Public repos only. Nothing you enter is stored beyond a short in-memory cache.
+            Public repos only. Nothing you enter is stored beyond a short in-memory cache.{' '}
+            <Link href="/how-it-works" className="text-ink-soft underline underline-offset-4 transition hover:text-ink">
+              Limits, caching and the full walkthrough
+            </Link>
           </p>
         </section>
       </main>
