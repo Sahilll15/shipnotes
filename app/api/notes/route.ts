@@ -2,7 +2,7 @@ import { APIError } from 'openai';
 import { isValidRef, parseRepo } from '@/lib/repo.ts';
 import { cachedResult, generate } from '@/server/generate.ts';
 import { GitHubError } from '@/server/github.ts';
-import { check, tooMany } from '@/server/ratelimit.ts';
+import { gate } from '@/server/ratelimit.ts';
 
 export const maxDuration = 120;
 const MAX_BODY = 2_000;
@@ -44,8 +44,8 @@ export async function POST(req: Request) {
     headers: { 'content-type': 'application/x-ndjson' },
   });
 
-  const gate = check(req, 'notes');
-  if (!gate.ok) return tooMany(gate.retryAfter);
+  const stop = await gate(req, 'notes');
+  if (stop) return stop;
 
   const encoder = new TextEncoder();
   const stream = new ReadableStream({

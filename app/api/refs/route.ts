@@ -1,6 +1,6 @@
 import { defaultRange, parseRepo } from '@/lib/repo.ts';
 import { GitHubError, listTags, quotaSnapshot } from '@/server/github.ts';
-import { check, tooMany } from '@/server/ratelimit.ts';
+import { gate } from '@/server/ratelimit.ts';
 
 export async function GET(req: Request) {
   const input = new URL(req.url).searchParams.get('repo') ?? '';
@@ -8,8 +8,8 @@ export async function GET(req: Request) {
   const id = parseRepo(input);
   if (!id) return Response.json({ error: 'Enter a public GitHub repo as owner/repo or a github.com URL.' }, { status: 400 });
 
-  const gate = check(req, 'refs');
-  if (!gate.ok) return tooMany(gate.retryAfter);
+  const stop = await gate(req, 'refs');
+  if (stop) return stop;
 
   try {
     const tags = await listTags(id.owner, id.repo);

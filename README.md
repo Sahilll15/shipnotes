@@ -22,8 +22,8 @@ Maintainers need a first draft of a release body, and users want to know what ch
 - The range is capped at the newest 150 commits (`MAX_COMMITS`). The cap picks the right compare pages, so a large range costs no extra requests.
 - GitHub responses are cached in memory for 15 minutes, shaped first so the cache holds no diff payloads. Rate-limit headers are tracked per resource. When the quota is used up, ShipNotes stops calling GitHub and says when it resets.
 - Finished notes are cached for an hour. A cached result is served without counting against the rate limit, so the sample buttons are free after the first run.
-- `/api/notes` allows 4 uncached runs per IP per hour and `/api/refs` allows 20. Input is validated before a request is counted. Bodies over 2KB get a 413.
-- The client IP comes from `x-real-ip`, then the last `x-forwarded-for` hop, because the leftmost hop is set by the client.
+- `/api/notes` allows 4 uncached runs per IP per hour and `/api/refs` allows 20. The counts are global across instances: they live in Upstash Redis, the hour starts with the first counted request, and a refused request is not counted. A 429 carries `resetAt` and `retry-after`. Without the Redis env vars (local dev, tests) the limiter falls back to process memory, and if Redis is configured but unreachable both routes return 503 "The service is busy, try again in a minute." instead of running unmetered. Input is validated before a request is counted. Bodies over 2KB get a 413.
+- The client IP comes from `x-real-ip`, then the last `x-forwarded-for` hop, because the leftmost hop is set by the client. IPv6 addresses are grouped by /64.
 - The prompt is capped near 48k characters. PR bodies are stripped of template noise and shortened until the prompt fits. The prompt marks PR text as untrusted data.
 - Low reasoning effort, two SDK retries, a 90 second timeout.
 
@@ -65,6 +65,8 @@ npm run lint && npm run build
 | `RATE_LIMIT_NOTES` | `4` | Uncached note runs per IP per window. |
 | `RATE_LIMIT_REFS` | `20` | Tag lookups per IP per window. |
 | `RATE_LIMIT_WINDOW_MS` | `3600000` | Rate limit window. |
+| `KV_REST_API_URL`, `KV_REST_API_TOKEN` | none | Upstash Redis for shared limits. Set by the Vercel integration; `vercel env pull .env.local` for local use. |
+| `RATE_LIMIT_NAMESPACE` | `shipnotes` | Redis key namespace; use a different one for local runs against the shared database. |
 | `MAX_COMMITS` | `150` | Newest commits read from a range. |
 | `PRICE_INPUT_PER_M`, `PRICE_OUTPUT_PER_M` | `0.75`, `4.5` | USD per million tokens, for the cost shown on the page. |
 
