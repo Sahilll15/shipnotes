@@ -1,17 +1,14 @@
 import 'server-only';
-import OpenAI from 'openai';
 import { zodTextFormat } from 'openai/helpers/zod';
 import { ModelNotes, promptFor, SYSTEM_PROMPT, verifyNotes } from '../lib/notes.ts';
 import type { ReleaseDoc } from '../lib/markdown.ts';
 import { fetchRange, quotaSnapshot, type RangeData } from './github.ts';
+import { providers, withFallback } from './provider.ts';
 
 const MODEL = process.env.OPENAI_MODEL || 'gpt-5.4-mini';
-// USD per token for gpt-5.4-mini; override when switching models.
+// USD per token for the OpenAI model; override when switching models. Groq's free tier counts as zero.
 const PRICE_IN = Number(process.env.PRICE_INPUT_PER_M ?? 0.75) / 1e6;
 const PRICE_OUT = Number(process.env.PRICE_OUTPUT_PER_M ?? 4.5) / 1e6;
-
-let client: OpenAI | null = null;
-const openai = () => (client ??= new OpenAI({ maxRetries: 2, timeout: 90_000 }));
 
 export type NotesResult = ReleaseDoc & {
   range: Omit<RangeData, 'changes' | 'contributors'>;
@@ -41,16 +38,19 @@ export async function generate(
 
   progress(`Writing notes for ${range.changes.length} changes`);
   const started = Date.now();
-  const response = await openai().responses.parse({
-    model: MODEL,
-    reasoning: { effort: 'low' },
-    max_output_tokens: 16_000,
-    input: [
-      { role: 'system', content: SYSTEM_PROMPT },
-      { role: 'user', content: promptFor(range.changes, { repo: full, base, head }) },
-    ],
-    text: { format: zodTextFormat(ModelNotes, 'release_notes') },
-  });
+  const { result: response, provider } = await withFallback(providers(MODEL), ({ client, model }) =>
+    client.responses.parse({
+      model,
+      reasoning: { effort: 'low' },
+      max_output_tokens: 16_000,
+      input: [
+        { role: 'system', content: SYSTEM_PROMPT },
+        { role: 'user', content: promptFor(range.changes, { repo: full, base, head }) },
+      ],
+      text: { format: zodTextFormat(ModelNotes, 'release_notes') },
+    }),
+  );
+  const paid = provider.name === 'openai';
   const parsed = response.output_parsed;
   if (!parsed) throw new Error('The model returned no structured output.');
 
@@ -72,10 +72,10 @@ export async function generate(
     range: rangeMeta,
     verification,
     usage: {
-      model: MODEL,
+      model: provider.model,
       inputTokens,
       outputTokens,
-      costUsd: Number((inputTokens * PRICE_IN + outputTokens * PRICE_OUT).toFixed(5)),
+      costUsd: paid ? Number((inputTokens * PRICE_IN + outputTokens * PRICE_OUT).toFixed(5)) : 0,
       ms: Date.now() - started,
     },
     github: quotaSnapshot(),
