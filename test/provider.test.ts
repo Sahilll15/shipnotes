@@ -18,7 +18,8 @@ test('providers puts Groq first, then OpenAI with its own model', () => {
   assert.deepEqual(pick(providers('gpt-5.4-mini', { OPENAI_API_KEY: 'o' })), [['openai', 'gpt-5.4-mini']]);
 });
 
-test('isRetryable covers 429, 5xx and network errors only', () => {
+test('isRetryable covers 413, 429, 5xx and network errors only', () => {
+  assert.equal(isRetryable(apiError(413)), true);
   assert.equal(isRetryable(apiError(429)), true);
   assert.equal(isRetryable(apiError(500)), true);
   assert.equal(isRetryable(new OpenAI.APIConnectionError({ message: 'down' })), true);
@@ -55,4 +56,12 @@ test('withFallback keeps the Groq result when it succeeds', async () => {
   const out = await withFallback([fake('groq', 'g'), fake('openai', 'o')], async () => 1);
   assert.equal(out.result, 1);
   assert.equal(out.provider.name, 'groq');
+});
+
+test('withFallback moves to OpenAI when Groq rejects a request as too large (413)', async () => {
+  const out = await withFallback([fake('groq', 'g'), fake('openai', 'o')], async (p) => {
+    if (p.name === 'groq') throw apiError(413);
+    return 'ok';
+  });
+  assert.equal(out.provider.name, 'openai');
 });

@@ -28,10 +28,10 @@ export function providers(openaiModel: string, env: Env = process.env): Provider
   return list;
 }
 
-/** Rate limits, server errors and network failures; a bad request would fail the same way on OpenAI. */
+/** Rate limits, oversized requests (Groq's 413 for the per-minute token budget), server errors and network failures. */
 export function isRetryable(err: unknown) {
   if (!(err instanceof OpenAI.APIError) || err instanceof OpenAI.APIUserAbortError) return false;
-  return err.status === undefined || err.status === 429 || err.status >= 500;
+  return err.status === undefined || err.status === 413 || err.status === 429 || err.status >= 500;
 }
 
 /** Runs `call` on the first provider and retries once on the next one when the failure is retryable. */
