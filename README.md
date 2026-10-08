@@ -74,7 +74,9 @@ npm run lint && npm run build
 
 | Variable | Default | What it does |
 | --- | --- | --- |
-| `OPENAI_API_KEY` | none | Required. Server only. |
+| `GROQ_API_KEY` | none | When set, notes are written by Groq first. OpenAI is used only if Groq returns 429, 5xx or a network error. |
+| `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq model for the notes. |
+| `OPENAI_API_KEY` | none | Required without Groq, and used as the fallback. Server only. |
 | `OPENAI_MODEL` | `gpt-5.4-mini` | Model for the notes. |
 | `GITHUB_TOKEN` | none | Optional. Raises GitHub's limit from 60 to 5000 requests per hour and turns on PR lookups for unlabeled commits. |
 | `RATE_LIMIT_NOTES` | `4` | Uncached note runs per IP per window. |
