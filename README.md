@@ -75,6 +75,7 @@ npm run lint && npm run build
 | Variable | Default | What it does |
 | --- | --- | --- |
 | `GROQ_API_KEY` | none | When set, notes are written by Groq first. OpenAI is used only if Groq returns 429, 5xx or a network error. |
+| `GROQ_API_KEYS` | none | More Groq keys, comma or newline separated. Each key is tried in turn after `GROQ_API_KEY`. A key that hits a rate limit rests until its retry-after, and a rejected key rests for an hour. OpenAI is the fallback once every key has failed. |
 | `GROQ_MODEL` | `openai/gpt-oss-120b` | Groq model for the notes. |
 | `OPENAI_API_KEY` | none | Required without Groq, and used as the fallback. Server only. |
 | `OPENAI_MODEL` | `gpt-5.4-mini` | Model for the notes. |
